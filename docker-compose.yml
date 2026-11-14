@@ -1,0 +1,59 @@
+# Ambiente local: SQL Server + criação automática do banco + API.
+# Uso:  1) copie .env.example para .env   2) docker compose up --build
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64            # necessário em Mac com chip Apple (M1/M2/M3)
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:?Crie o arquivo .env com DB_PASSWORD (veja .env.example)}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:                     # só fica "healthy" quando o SQL Server já aceita login
+      test: >
+        /bin/bash -c '
+        for t in /opt/mssql-tools18/bin/sqlcmd /opt/mssql-tools/bin/sqlcmd; do
+          [ -x "$$t" ] && "$$t" -C -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" && exit 0
+        done; exit 1'
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  # Container que roda uma vez só: cria o banco "respirabem" se ainda não existir.
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      SA_PASSWORD: ${DB_PASSWORD}
+    restart: "no"
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        for t in /opt/mssql-tools18/bin/sqlcmd /opt/mssql-tools/bin/sqlcmd; do
+          if [ -x "$$t" ]; then SQLCMD="$$t"; break; fi
+        done
+        "$$SQLCMD" -C -b -S sqlserver -U sa -P "$$SA_PASSWORD" \
+          -Q "IF DB_ID('respirabem') IS NULL CREATE DATABASE respirabem;"
+        echo "Banco respirabem pronto."
+
+  api:
+    build: .
+    depends_on:
+      sqlserver-init:
+        condition: service_completed_successfully
+    environment:
+      DB_URL: jdbc:sqlserver://sqlserver:1433;databaseName=respirabem;encrypt=true;trustServerCertificate=true
+      DB_USERNAME: sa
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
+volumes:
+  sqldata:
