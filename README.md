@@ -16,7 +16,7 @@ O app Flutter RespiraBem mostra a qualidade do ar e orientações de saúde; est
 | Item | Link |
 |---|---|
 | Repositório GitHub | `https://github.com/JoaoThamer/respirabem-api` |
-| API no Azure (Swagger na raiz) | `https://SEU-APP.azurewebsites.net/` |
+| API no Azure (Swagger na raiz) | `https://respirabem-api-3sir-cxeqgsfjdpg7gzeq.mexicocentral-01.azurewebsites.net/` |
 | Imagem no Docker Hub | `https://hub.docker.com/r/joaothamer/respirabem-api` |
 
 ## Arquitetura
@@ -159,4 +159,4 @@ Arquivo: `.github/workflows/ci-docker-publish.yml`. A cada `push` na `main`: com
 
 A imagem do Docker Hub roda em um **Azure App Service (Web App for Containers, Linux)** conectado a um **Azure SQL Database**. As credenciais ficam nas *Application settings* do App Service (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `WEBSITES_PORT=8080`) — nunca no código. Passo a passo em `docs/ROTEIRO-DOCKER-AZURE.md`.
 
-URL pública: `https://SEU-APP.azurewebsites.net/`
+URL pública: `https://respirabem-api-3sir-cxeqgsfjdpg7gzeq.mexicocentral-01.azurewebsites.net/`

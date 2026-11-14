@@ -1,9 +1,0 @@
-GLOBAL SOLUTION - 3SIR
-
-INTEGRANTES
-Nome: SEU NOME COMPLETO | RM: SEU_RM
-Nome: NOME DO COLEGA | RM: RM_DO_COLEGA
-
-GITHUB: https://github.com/SEU_USUARIO/respirabem-api
-API AZURE: https://SEU-APP.azurewebsites.net/
-DOCKER HUB: https://hub.docker.com/r/SEU_USUARIO_DOCKERHUB/respirabem-api
